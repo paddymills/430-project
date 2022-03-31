@@ -6,8 +6,8 @@
   "build": {
     "distDir": "../svelte/public",
     "devPath": "https://localhost:8081",
-    "beforeDevCommand": "",
-    "beforeBuildCommand": ""
+    "beforeDevCommand": "yarn --cwd svelte dev",
+    "beforeBuildCommand": "yarn --cwd svelte build"
   },
   "tauri": {
     "bundle": {
