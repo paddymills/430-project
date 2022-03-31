@@ -1,7 +1,7 @@
 
 use requestty::{Question, prompt_one};
 
-pub fn main() {
+pub fn main() -> Result<(), String> {
     let select = Question::select("main")
         .message("Main Menu")
         .choices::<Vec<String>, String>(vec![
@@ -12,4 +12,6 @@ pub fn main() {
         .build();
 
     println!("{:?}", prompt_one(select));
+
+    Ok(())
 }

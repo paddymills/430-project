@@ -5,7 +5,7 @@ use figment::{
 };
 use oracle::Connection;
 use requestty::{Question, prompt_one};
-use serde_derive::Deserialize;
+use serde::Deserialize;
 
 const HOST_SERVICE: &str = "//h3oracle.ad.psu.edu:1521/orclpdb.ad.psu.edu";
 
@@ -23,18 +23,20 @@ fn main() {
         .extract()
         .unwrap();
 
-    let passwd = prompt_one(
-        Question::password("password")
-            .message("Password: ")
-            .mask('*')
-            .build()
-    );
-    cfg.password = passwd.unwrap().as_string().unwrap().into();
+    if cfg.password == "test" {
+        let passwd = prompt_one(
+            Question::password("password")
+                .message("Password: ")
+                .mask('*')
+                .build()
+        );
+        cfg.password = passwd.unwrap().as_string().unwrap().into();
+    }
 
     let cnxn = Connection::connect(cfg.username, cfg.password, HOST_SERVICE).unwrap();
 
-    let sql = "SELECT owner, table_name FROM dba_tables where 1=:1;";
-    let rows = cnxn.query_as::<(String, String)>(sql, &[&1u32]).unwrap();
+    let sql = "select id, val from test where id > :1";
+    let rows = cnxn.query_as::<(i32, String)>(sql, &[&1]).unwrap();
     for row in rows {
         let (owner, name) = row.unwrap();
         println!("{:} | {:}", owner, name);
