@@ -19,7 +19,7 @@ fn main() {
 
     let mut cfg: Config = Figment::new()
         .merge(Toml::file("db.toml"))
-        .merge(Env::prefixed("ORCL_"))
+        // .merge(Env::prefixed("ORCL_"))
         .extract()
         .unwrap();
 

@@ -6,3 +6,7 @@ struct Customer {
     email: String,
     phone: String
 }
+
+pub fn add_customer(fname: String, lname: String, email: String, phone: String) -> Result<(), String> {
+    
+}
