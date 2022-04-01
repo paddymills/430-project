@@ -33,3 +33,21 @@ begin
     into :nrow.loan_id
     from dual;
 end;
+
+
+-- transaction table primary key counter
+create sequence transaction_id_counter
+    start with 1
+    increment by 1;
+
+-- loan table primary key generator
+create or replace trigger set_transaction_id
+before insert on transaction
+referencing new as nrow
+for each row
+
+begin
+    select transaction_id_counter.nextval
+    into :nrow.transaction_id
+    from dual;
+end;
