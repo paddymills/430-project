@@ -1,19 +1,35 @@
+
+-- customer table primary key counter
+create sequence customer_id_counter
+    start with 1
+    increment by 1;
+
+-- customer table primary key generator
 create or replace trigger set_customer_id
 before insert on customer
+referencing new as nrow
 for each row
 
-declare
-    next_id customer.customer_id%type := 0;
 begin
-    select max(customer_id) + 1
-    into :next_id
-    from customer;
-
-    set :new.customer_id = :next_id;
+    select customer_id_counter.nextval
+    into :nrow.customer_id
+    from dual;
 end;
 
-insert into customer(first_name, last_name) values ('a', 'b');
-insert into customer(first_name, last_name) values ('c', 'd');
-commit;
 
-select * from customer;
+-- loan table primary key counter
+create sequence loan_id_counter
+    start with 1
+    increment by 1;
+
+-- loan table primary key generator
+create or replace trigger set_loan_id
+before insert on loan
+referencing new as nrow
+for each row
+
+begin
+    select loan_id_counter.nextval
+    into :nrow.loan_id
+    from dual;
+end;

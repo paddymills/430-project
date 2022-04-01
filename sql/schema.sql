@@ -1,4 +1,8 @@
 drop trigger set_customer_id;
+drop trigger set_loan_id;
+
+drop sequence customer_id_counter;
+drop sequence loan_id_counter;
 
 drop table mortgage_loan;
 drop table auto_loan;
@@ -11,6 +15,8 @@ create table customer (
 
     first_name varchar (255),
     last_name varchar (255),
+    email varchar(255),
+    phone varchar(12),
 
     primary key (customer_id) initially deferred
 );
