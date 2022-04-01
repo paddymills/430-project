@@ -9,6 +9,7 @@ members = ["src-tauri"]
 exclude = ["sql", "svelte"]
 
 [dependencies]
+chrono = "0.4"
 figment = { version = "0.10", features = ["toml", "env"] }
 oracle = { version = "0.5", features = ["chrono"] }
 requestty = "0.3.0"

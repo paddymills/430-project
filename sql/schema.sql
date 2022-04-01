@@ -7,18 +7,20 @@ drop sequence loan_id_counter;
 drop table mortgage_loan;
 drop table auto_loan;
 drop table personal_loan;
+drop table transaction;
 drop table loan;
 drop table customer;
 
+
 create table customer (
-    customer_id int,
+    customer_id int not null,
 
     first_name varchar (255),
     last_name varchar (255),
     email varchar(255),
     phone varchar(12),
 
-    primary key (customer_id) initially deferred
+    primary key (customer_id)
 );
 
 create table loan (
@@ -33,7 +35,20 @@ create table loan (
     number_of_payments int,
 
     primary key (loan_id),
-    foreign key (customer_id) references customer initially deferred
+    foreign key (customer_id) references customer
+);
+
+create table transaction (
+    transaction_id int not null,
+    customer_id int not null,
+    loan_id int not null,
+
+    transaction_amount float (2),
+    transaction_date date,
+
+    primary key (transaction_id),
+    foreign key (customer_id) references customer,
+    foreign key (loan_id) references loan
 );
 
 create table mortgage_loan (
