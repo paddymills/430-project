@@ -44,11 +44,3 @@ begin
     where first_name := fname
     and last_name := lname;
 end;
-
-create or replace procedure get_customer_list
-as
-begin
-    select * from customer;
-end;
-
-

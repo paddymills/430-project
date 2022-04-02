@@ -583,17 +583,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cs-430-sql-project"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "figment",
- "oracle",
- "requestty",
- "serde",
-]
-
-[[package]]
 name = "cssparser"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1614,6 +1603,17 @@ name = "libc"
 version = "0.2.121"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efaa7b300f3b5fe8eb6bf21ce3895e1751d9665086af2d64b42f19701015ff4f"
+
+[[package]]
+name = "loans"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "figment",
+ "oracle",
+ "requestty",
+ "serde",
+]
 
 [[package]]
 name = "lock_api"

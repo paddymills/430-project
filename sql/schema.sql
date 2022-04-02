@@ -1,8 +1,10 @@
 drop trigger set_customer_id;
 drop trigger set_loan_id;
+drop trigger set_transaction_id;
 
 drop sequence customer_id_counter;
 drop sequence loan_id_counter;
+drop sequence transaction_id_counter;
 
 drop table mortgage_loan;
 drop table auto_loan;
