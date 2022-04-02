@@ -12,6 +12,13 @@ pub struct Config {
     pub password: String
 }
 
+pub fn db_cred() -> Config {
+    Config {
+        username: "pjm6196".into(),
+        password: "viralatrium".into()
+    }
+}
+
 pub fn get_db_cred() -> Config {
     let mut cfg: Config = Figment::new()
         .merge(Toml::file("db.toml"))

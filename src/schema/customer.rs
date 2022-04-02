@@ -21,25 +21,25 @@ impl RowValue for Customer {
     }
 }
 
-trait CustomerOps {
-    fn add_customer(self: Self, fname: String, lname: String, email: String, phone: String) -> oracle::Result<()> where Self: Sized;
-    fn edit_customer(self: Self, id: u32, fname: String, lname: String, email: String, phone: String) -> oracle::Result<()> where Self: Sized;
+pub trait CustomerOps {
+    fn add_customer(self: Self, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
+    fn edit_customer(self: Self, id: u32, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
     fn remove_customer(self: Self, id: u32) -> oracle::Result<()> where Self: Sized;
-    fn find_customer(self: Self, fname: String, lname: String) -> Option<Vec<Customer>> where Self: Sized;
+    fn find_customer(self: Self, fname: &String, lname: &String) -> Option<Vec<Customer>> where Self: Sized;
     fn list_customers(self: Self) -> Option<Vec<Customer>> where Self: Sized;
 }
 
 impl CustomerOps for Connection {
     fn add_customer(
         self: Connection,
-        fname: String,
-        lname: String,
-        email: String,
-        phone: String
+        fname: &String,
+        lname: &String,
+        email: &String,
+        phone: &String
     ) -> oracle::Result<()> {
         let _ = self.execute(
             "call add_customer(:1, :2, :3, :4);",
-            &[&fname, &lname, &email, &phone]
+            &[fname, lname, email, phone]
         );
         
         self.commit()
@@ -48,14 +48,14 @@ impl CustomerOps for Connection {
     fn edit_customer(
         self: Self,
         id: u32,
-        fname: String,
-        lname: String,
-        email: String,
-        phone: String
+        fname: &String,
+        lname: &String,
+        email: &String,
+        phone: &String
     ) -> oracle::Result<()> {
         let _ = self.execute(
             "call change_customer(:1, :2, :3, :4, :5);",
-            &[&id, &fname, &lname, &email, &phone]
+            &[&id, fname, lname, email, phone]
         );
         
         self.commit()
@@ -70,13 +70,13 @@ impl CustomerOps for Connection {
         self.commit()
     }
     
-    fn find_customer(self: Self, fname: String, lname: String) -> Option<Vec<Customer>> {
+    fn find_customer(self: Self, fname: &String, lname: &String) -> Option<Vec<Customer>> {
         let res = self.query_as::<Customer>(
             "
                 select *
                 from customer
                 where first_name = :1 and last_name = :2;
-            ", &[&fname, &lname]
+            ", &[fname, lname]
         );
 
         if let Ok(rows) = res {
