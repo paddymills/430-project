@@ -8,5 +8,5 @@ struct Customer {
 }
 
 pub fn add_customer(fname: String, lname: String, email: String, phone: String) -> Result<(), String> {
-    
+    Ok(())
 }

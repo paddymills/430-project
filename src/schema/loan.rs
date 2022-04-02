@@ -1,5 +1,5 @@
 
-use chrono::Date;
+use chrono::naive::NaiveDate;
 
 struct Loan {
     loan_id: u32,
@@ -7,7 +7,7 @@ struct Loan {
     loan_amount: f32,
     interest_rate: f32,
     amount_paid: f32,
-    start_date: Date,
-    end_date: Date,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
     number_of_payments: u32
 }
