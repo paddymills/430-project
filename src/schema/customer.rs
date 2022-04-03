@@ -1,6 +1,8 @@
 
 use oracle::{self, Connection, Row, RowValue};
+use tabled::Tabled;
 
+#[derive(Tabled)]
 pub struct Customer {
     pub customer_id: u32,
     pub first_name: String,
@@ -23,8 +25,8 @@ impl RowValue for Customer {
 
 pub trait CustomerOps {
     fn add_customer(self: Self, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
-    fn edit_customer(self: Self, id: u32, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
-    fn remove_customer(self: Self, id: u32) -> oracle::Result<()> where Self: Sized;
+    fn edit_customer(self: Self, id: &u32, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
+    fn remove_customer(self: Self, id: &u32) -> oracle::Result<()> where Self: Sized;
     fn find_customer(self: Self, fname: &String, lname: &String) -> Option<Vec<Customer>> where Self: Sized;
     fn list_customers(self: Self) -> Option<Vec<Customer>> where Self: Sized;
 }
@@ -38,7 +40,7 @@ impl CustomerOps for Connection {
         phone: &String
     ) -> oracle::Result<()> {
         let _ = self.execute(
-            "call add_customer(:1, :2, :3, :4);",
+            "call add_customer(:1, :2, :3, :4)",
             &[fname, lname, email, phone]
         );
         
@@ -47,24 +49,24 @@ impl CustomerOps for Connection {
 
     fn edit_customer(
         self: Self,
-        id: u32,
+        id: &u32,
         fname: &String,
         lname: &String,
         email: &String,
         phone: &String
     ) -> oracle::Result<()> {
         let _ = self.execute(
-            "call change_customer(:1, :2, :3, :4, :5);",
-            &[&id, fname, lname, email, phone]
+            "call change_customer(:1, :2, :3, :4, :5)",
+            &[id, fname, lname, email, phone]
         );
         
         self.commit()
     }
 
-    fn remove_customer(self: Self, id: u32) -> oracle::Result<()> {
+    fn remove_customer(self: Self, id: &u32) -> oracle::Result<()> {
         let _ = self.execute(
-            "call remove_customer(:1);",
-            &[&id]
+            "call remove_customer(:1)",
+            &[id]
         );
         
         self.commit()
@@ -75,7 +77,7 @@ impl CustomerOps for Connection {
             "
                 select *
                 from customer
-                where first_name = :1 and last_name = :2;
+                where first_name = :1 and last_name = :2
             ", &[fname, lname]
         );
 
@@ -89,7 +91,7 @@ impl CustomerOps for Connection {
     fn list_customers(self: Self) -> Option<Vec<Customer>>
         where Self: Sized
     {
-        let res = self.query_as::<Customer>("select * from customer;", &[]);
+        let res = self.query_as::<Customer>("select * from customer", &[]);
 
         if let Ok(rows) = res {
             return Some(rows.filter_map(|c| c.ok()).collect());

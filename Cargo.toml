@@ -12,5 +12,8 @@ exclude = ["sql", "svelte"]
 chrono = "0.4"
 figment = { version = "0.10", features = ["toml", "env"] }
 oracle = { version = "0.5", features = ["chrono"] }
-requestty = "0.3.0"
+r2d2 = "0.8"
+r2d2-oracle = "0.5"
+requestty = { version = "0.3.0", features = ["crossterm"] }
 serde = { version = "1.0", features = ["derive"] }
+tabled = "0.5"
