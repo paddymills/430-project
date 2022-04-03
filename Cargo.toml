@@ -11,6 +11,7 @@ exclude = ["sql", "svelte"]
 [dependencies]
 chrono = "0.4"
 figment = { version = "0.10", features = ["toml", "env"] }
+lazy_static = "1.4"
 oracle = { version = "0.5", features = ["chrono"] }
 r2d2 = "0.8"
 r2d2-oracle = "0.5"

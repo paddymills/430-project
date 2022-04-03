@@ -1,38 +1,34 @@
 
+use lazy_static::lazy_static;
 use oracle::Connection;
+use r2d2::{Pool, PooledConnection};
 use r2d2_oracle::OracleConnectionManager;
-use std::sync::Once;
 
 use crate::{config, HOST_SERVICE};
 
-static mut CNXN_POOL: r2d2::Pool<OracleConnectionManager>;
-static INIT: Once = Once::new();
+lazy_static! {
+    static ref POOL: Pool<OracleConnectionManager> = {
+        let cfg = config::db_cred();
+        let manager: OracleConnectionManager = OracleConnectionManager::new(
+            &cfg.username,
+            &cfg.password,
+            HOST_SERVICE
+        );
 
-pub fn get_cnxn() -> Connection {
-    let cfg = config::db_cred();
+        Pool::builder()
+        .max_size(10)
+        .build(manager)
+        .unwrap()
+    };
+}
 
-    unsafe {
-        INIT.call_once(|| {
-            let manager: OracleConnectionManager = OracleConnectionManager::new(
-                &cfg.username,
-                &cfg.password,
-                HOST_SERVICE
-            );
-
-            CNXN_POOL = r2d2::Pool::builder()
-                .max_size(10)
-                .build(manager)
-                .unwrap();
-        });
-
-    }
-    
-    CNXN_POOL.get().unwrap()
+pub fn get_cnxn() -> PooledConnection<OracleConnectionManager> {
+    POOL.clone().get().unwrap()
 }
 
 
-// pub fn get_cnxn() -> Connection {
-//     let cfg = config::db_cred();
+pub fn get_one_cnxn() -> Connection {
+    let cfg = config::db_cred();
 
-//     Connection::connect(cfg.username, cfg.password, HOST_SERVICE).unwrap()
-// }
+    Connection::connect(cfg.username, cfg.password, HOST_SERVICE).unwrap()
+}

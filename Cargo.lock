@@ -1610,6 +1610,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "figment",
+ "lazy_static",
  "oracle",
  "r2d2",
  "r2d2-oracle",

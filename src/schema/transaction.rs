@@ -25,18 +25,18 @@ impl RowValue for Transaction {
 }
 
 pub trait TransactionOps {
-    fn add_transaction(self: Self, customer_id: &u32, loan_id: &u32, date: NaiveDate, amount: &f32) -> oracle::Result<()>;
-    fn edit_transaction(self: Self, transaction_id: &u32, date: NaiveDate, amount: &f32) -> oracle::Result<()>;
-    fn remove_transaction(self: Self, transaction_id: &u32) -> oracle::Result<()>;
-    fn list_transactions(self: Self) -> Option<Vec<Transaction>>;
-    fn search_transaction_by_customer(self: Self, fname: &String, lname: &String) -> Option<Vec<Transaction>>;
-    fn search_transaction_by_loan_type(self: Self, loan_type: &String) -> Option<Vec<Transaction>>;
-    fn search_transaction_by_date(self: Self, date: NaiveDate) -> Option<Vec<Transaction>>;
+    fn add_transaction(self: &Self, customer_id: &u32, loan_id: &u32, date: NaiveDate, amount: &f32) -> oracle::Result<()>;
+    fn edit_transaction(self: &Self, transaction_id: &u32, date: NaiveDate, amount: &f32) -> oracle::Result<()>;
+    fn remove_transaction(self: &Self, transaction_id: &u32) -> oracle::Result<()>;
+    fn list_transactions(self: &Self) -> Option<Vec<Transaction>>;
+    fn search_transaction_by_customer(self: &Self, fname: &String, lname: &String) -> Option<Vec<Transaction>>;
+    fn search_transaction_by_loan_type(self: &Self, loan_type: &String) -> Option<Vec<Transaction>>;
+    fn search_transaction_by_date(self: &Self, date: NaiveDate) -> Option<Vec<Transaction>>;
 }
 
 impl TransactionOps for Connection {
     fn add_transaction(
-        self: Self,
+        self: &Self,
         customer_id: &u32,
         loan_id: &u32,
         date: NaiveDate,
@@ -51,7 +51,7 @@ impl TransactionOps for Connection {
     }
 
     fn edit_transaction(
-        self: Self,
+        self: &Self,
         transaction_id: &u32,
         date: NaiveDate,
         amount: &f32
@@ -64,7 +64,7 @@ impl TransactionOps for Connection {
         self.commit()
     }
 
-    fn remove_transaction(self: Self, transaction_id: &u32) -> oracle::Result<()> {
+    fn remove_transaction(self: &Self, transaction_id: &u32) -> oracle::Result<()> {
         let _ = self.execute(
             "call remove_transaction(:1)",
             &[transaction_id]
@@ -73,7 +73,7 @@ impl TransactionOps for Connection {
         self.commit()
     }
 
-    fn list_transactions(self: Self) -> Option<Vec<Transaction>> {
+    fn list_transactions(self: &Self) -> Option<Vec<Transaction>> {
         let res = self.query_as::<Transaction>("select * from transaction", &[]);
 
         if let Ok(rows) = res {
@@ -83,7 +83,7 @@ impl TransactionOps for Connection {
         None
     }
 
-    fn search_transaction_by_customer(self: Self, fname: &String, lname: &String) -> Option<Vec<Transaction>> {
+    fn search_transaction_by_customer(self: &Self, fname: &String, lname: &String) -> Option<Vec<Transaction>> {
         let res = self.query_as::<Transaction>(
             "
                 select *
@@ -104,7 +104,7 @@ impl TransactionOps for Connection {
         None
     }
 
-    fn search_transaction_by_loan_type(self: Self, loan_type: &String) -> Option<Vec<Transaction>> {
+    fn search_transaction_by_loan_type(self: &Self, loan_type: &String) -> Option<Vec<Transaction>> {
         let query = match loan_type.as_str() {
             "Auto"     => "select * from transaction where loan_id in ( select loan_id from auto_loan )",
             "Mortgage" => "select * from transaction where loan_id in ( select loan_id from mortgage_loan )",
@@ -121,7 +121,7 @@ impl TransactionOps for Connection {
         None
     }
 
-    fn search_transaction_by_date(self: Self, date: NaiveDate) -> Option<Vec<Transaction>> {
+    fn search_transaction_by_date(self: &Self, date: NaiveDate) -> Option<Vec<Transaction>> {
         let res = self.query_as::<Transaction>(
             "select * from transaction where date = :1",
             &[&date]
