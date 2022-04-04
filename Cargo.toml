@@ -8,6 +8,10 @@ edition = "2021"
 members = ["src-tauri"]
 exclude = ["sql", "svelte"]
 
+[[bin]]
+name = "loan-cli"
+path = "src/bin/cli.rs"
+
 [dependencies]
 chrono = "0.4"
 figment = { version = "0.10", features = ["toml", "env"] }
