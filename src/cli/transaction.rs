@@ -29,8 +29,7 @@ pub fn menu() {
                 "Search for a Transaction (by product)".into(),
                 "Search for a Transaction (by date)".into(),
                 DefaultSeparator,
-                "Exit to Main Menu".into(),
-                "Exit Loan System".into()
+                "Exit to Main Menu".into()
             ])
             .build();
             
@@ -46,12 +45,9 @@ pub fn menu() {
                     5 => list_by_type(),
                     6 => list_by_date(),
                     8 => break,
-                    9 => break,
                     _ => unreachable!()
                 }
             }
-
-            println!("{}", MENU_SEP);
     }
 }
 

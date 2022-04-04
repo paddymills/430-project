@@ -28,7 +28,5 @@ pub fn menu() {
                 _ => unreachable!()
             }
         }
-
-        println!("{}", MENU_SEP);
     }
 }

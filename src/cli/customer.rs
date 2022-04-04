@@ -22,8 +22,7 @@ pub fn menu() {
                 "Search for a Customer".into(),
                 "List Customers".into(),
                 DefaultSeparator,
-                "Exit to Main Menu".into(),
-                "Exit Loan System".into()
+                "Exit to Main Menu".into()
             ])
             .build();
 
@@ -37,12 +36,9 @@ pub fn menu() {
                 3 => find(),
                 4 => list(),
                 6 => break,
-                7 => break,
                 _ => unreachable!()
             }
         }
-
-        println!("{}", MENU_SEP);
     }
 }
 
@@ -62,7 +58,7 @@ fn add() {
             let email = &answers.get_str("email");
             let phone = &answers.get_str("phone");
 
-            let _ = db::get_cnxn().add_customer(&fname, &lname, &email, &phone);
+            let _ = db::get_cnxn().add_customer(fname, lname, email, phone);
             
 
         },
@@ -72,7 +68,7 @@ fn add() {
 
 fn edit() {
     let questions = vec![
-        Question::input("id").message("Customer ID:").build(),
+        Question::int("id").message("Customer ID:").build(),
         Question::input("fname").message("First Name:").build(),
         Question::input("lname").message("Last Name:").build(),
         Question::input("email").message("Email Address:").build(),
@@ -88,9 +84,10 @@ fn edit() {
             let email = &answers.get_str("email");
             let phone = &answers.get_str("phone");
 
-            let _ = db::get_cnxn().edit_customer(cid, &fname, &lname, &email, &phone);
-            
-
+            match db::get_cnxn().edit_customer(cid, fname, lname, email, phone) {
+                Ok(_) => println!("Succesfully added customer"),
+                Err(_) => println!("Error adding customer")
+            }
         },
         _ => println!("Input error. Returning to menu.")
     }
@@ -98,7 +95,7 @@ fn edit() {
 
 fn remove() {
     let questions = vec![
-        Question::input("id").message("Customer ID:").build()
+        Question::int("id").message("Customer ID:").build()
     ];
 
     match prompt(questions) {
@@ -107,8 +104,6 @@ fn remove() {
             let cid = &answers.get_int("id");
 
             let _ = db::get_cnxn().remove_customer(cid);
-            
-
         },
         _ => println!("Input error. Returning to menu.")
     }
@@ -126,9 +121,14 @@ fn find() {
             let fname = &answers.get_str("fname");
             let lname = &answers.get_str("lname");
 
-            let _ = db::get_cnxn().find_customer(fname, lname);
-            
+            let results = db::get_cnxn().find_customer(fname, lname);
+            if let Some(rows) = results {
+                println!("{}", Table::new(rows).with(Style::psql()));
+            }
 
+            else {
+                println!("No results returned");
+            }
         },
         _ => println!("Input error. Returning to menu.")
     }

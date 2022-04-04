@@ -15,7 +15,7 @@ drop table customer;
 
 
 create table customer (
-    customer_id int not null,
+    customer_id int,
 
     first_name varchar (255),
     last_name varchar (255),
@@ -26,7 +26,7 @@ create table customer (
 );
 
 create table loan (
-    loan_id int not null,
+    loan_id int,
     customer_id int not null,
 
     loan_amount float (2),
@@ -41,7 +41,7 @@ create table loan (
 );
 
 create table transaction (
-    transaction_id int not null,
+    transaction_id int,
     customer_id int not null,
     loan_id int not null,
 

@@ -1,6 +1,5 @@
 
 use lazy_static::lazy_static;
-use oracle::Connection;
 use r2d2::{Pool, PooledConnection};
 use r2d2_oracle::OracleConnectionManager;
 
@@ -27,8 +26,21 @@ pub fn get_cnxn() -> PooledConnection<OracleConnectionManager> {
 }
 
 
-pub fn get_one_cnxn() -> Connection {
-    let cfg = config::db_cred();
+#[cfg(test)]
+mod tests {
+    use crate::db;
+    use oracle::Error;
 
-    Connection::connect(cfg.username, cfg.password, HOST_SERVICE).unwrap()
+    #[test]
+    fn test_connection() {
+        let cnxn = db::get_cnxn();
+
+        match cnxn.query_row_as::<u32>("select 1 from customer", &[]) {
+            Ok(row) => {
+                assert_eq!(row, 1u32);
+            },
+            Err(Error::OciError(e)) => println!("OracleDB Error: {:?}", e.message()),
+            Err(e) => println!("OracleDB Error: {:?}", e)
+        }
+    }
 }
