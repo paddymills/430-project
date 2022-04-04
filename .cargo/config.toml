@@ -1,4 +1,5 @@
 
 [alias]
+br = ["build", "--release"]
 bl = ["build", "--release", "--target", "x86_64-unknown-linux-musl"]
 bwin = ["build", "--release", "--target", "x86_64-pc-windows-msvc"]
