@@ -18,8 +18,6 @@ pub fn menu() {
             ])
             .build();
 
-        println!("{}", MENU_SEP);
-
         if let Ok(Answer::ListItem(result)) = prompt_one(select) {
             match result.index {
                 0 => customer::menu(),
@@ -29,4 +27,6 @@ pub fn menu() {
             }
         }
     }
+
+    println!("{}", MENU_SEP);
 }

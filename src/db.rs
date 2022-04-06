@@ -15,10 +15,15 @@ lazy_static! {
         );
 
         Pool::builder()
-        .max_size(10)
-        .build(manager)
-        .unwrap()
+            .max_size(10)
+            .build(manager)
+            .unwrap()
     };
+}
+
+// method to force a database login on startup
+pub fn init() -> Pool<OracleConnectionManager> {
+    POOL.clone()
 }
 
 pub fn get_cnxn() -> PooledConnection<OracleConnectionManager> {

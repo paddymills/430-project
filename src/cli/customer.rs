@@ -25,8 +25,6 @@ pub fn menu() {
                 "Exit to Main Menu".into()
             ])
             .build();
-
-        println!("{}", MENU_SEP);
     
         if let Ok(Answer::ListItem(result)) = prompt_one(select) {
             match result.index {
@@ -39,6 +37,8 @@ pub fn menu() {
                 _ => unreachable!()
             }
         }
+
+        println!("{}", MENU_SEP);
     }
 }
 
