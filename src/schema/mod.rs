@@ -1,4 +1,5 @@
 
+mod auth;
 mod customer;
 mod loan;
 mod auto_loan;
@@ -6,6 +7,7 @@ mod mortgage_loan;
 mod personal_loan;
 mod transaction;
 
+pub use auth::*;
 pub use customer::*;
 pub use loan::*;
 pub use auto_loan::*;
