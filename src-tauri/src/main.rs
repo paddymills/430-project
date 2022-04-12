@@ -3,28 +3,14 @@
   windows_subsystem = "windows"
 )]
 
-use loans::{
-    db,
-    schema::{AuthOps, Loan}
-};
-use app::auth;
-
-
-#[tauri::command]
-fn validate_login(user: String, pwd: String) -> auth::AuthResult {
-    auth::validate_login(user, pwd)
-}
-
-#[tauri::command]
-fn get_customer_loans(user: String) -> Option<Vec<Loan>> {
-    db::get_cnxn().get_loans(&user)
-}
+use app::{auth, admin, customer};
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            get_customer_loans,
-            validate_login
+            auth::validate_login,
+            admin::get_all_loans,
+            customer::get_cust_loans,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

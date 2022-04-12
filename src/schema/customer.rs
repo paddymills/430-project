@@ -2,6 +2,8 @@
 use oracle::{self, Connection, Row, RowValue};
 use tabled::Tabled;
 
+use crate::schema::Loan;
+
 #[derive(Tabled)]
 pub struct Customer {
     pub customer_id: u32,
@@ -29,6 +31,8 @@ pub trait CustomerOps {
     fn remove_customer(self: &Self, id: &u32) -> oracle::Result<()> where Self: Sized;
     fn find_customer(self: &Self, fname: &String, lname: &String) -> Option<Vec<Customer>> where Self: Sized;
     fn list_customers(self: &Self) -> Option<Vec<Customer>> where Self: Sized;
+
+    fn get_loans(self: &Self, user: &String) -> Option<Vec<Loan>>;
 }
 
 impl CustomerOps for Connection {
@@ -100,4 +104,24 @@ impl CustomerOps for Connection {
         None
     }
 
+    fn get_loans(self: &Self, user: &String) -> Option<Vec<Loan>> {
+        let res = self.query_as::<Loan>(
+            "
+                select *
+                from loan
+                where customer_id = (
+                    select customer_id
+                    from auth
+                    where username = :1
+                )
+            ",
+            &[user]
+        );
+
+        if let Ok(rows) = res {
+            return Some(rows.filter_map(|c| c.ok()).collect());
+        }
+
+        None
+    }
 }

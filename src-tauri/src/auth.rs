@@ -13,6 +13,7 @@ pub struct AuthResult {
     pub is_admin: bool
 }
 
+#[tauri::command]
 pub fn validate_login(user: String, pwd: String) -> AuthResult {
     let conn = db::get_cnxn();
     match conn.validate_login(user, pwd) {

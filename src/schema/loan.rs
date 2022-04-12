@@ -1,6 +1,6 @@
 
 use chrono::naive::NaiveDate;
-use oracle::{self, Row, RowValue};
+use oracle::{self, Connection, Row, RowValue};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -30,5 +30,21 @@ impl RowValue for Loan {
             end_date: row.get("end_date")?,
             number_of_payments: row.get("number_of_payments")?
         })
+    }
+}
+
+pub trait LoanOps {
+    fn get_loans(self: &Self) -> Option<Vec<Loan>>;
+}
+
+impl LoanOps for Connection {
+    fn get_loans(self: &Self) -> Option<Vec<Loan>> {
+        let res = self.query_as::<Loan>("select * from loan", &[]);
+
+        if let Ok(rows) = res {
+            return Some(rows.filter_map(|c| c.ok()).collect());
+        }
+
+        None
     }
 }

@@ -1,10 +1,6 @@
 
 use oracle::{self, Connection, Row, RowValue};
 
-use crate::{
-    db,
-    schema::Loan
-};
 use sha2::{Digest, Sha256};
 
 pub enum LoginResult {
@@ -44,7 +40,6 @@ impl RowValue for Auth {
 pub trait AuthOps {
     fn get_users(self: &Self) -> Option<Vec<Auth>>;
     fn validate_login(self: &Self, user: String, pwd: String) -> LoginResult;
-    fn get_loans(self: &Self, user: &String) -> Option<Vec<Loan>>;
 }
 
 impl AuthOps for Connection {
@@ -72,31 +67,10 @@ impl AuthOps for Connection {
             Err(_) => LoginResult::BadUsername
         }
     }
-
-    fn get_loans(self: &Self, user: &String) -> Option<Vec<Loan>> {
-        let res = self.query_as::<Loan>(
-            "
-                select *
-                from loan
-                where customer_id = (
-                    select customer_id
-                    from auth
-                    where username = :1
-                )
-            ",
-            &[user]
-        );
-
-        if let Ok(rows) = res {
-            return Some(rows.filter_map(|c| c.ok()).collect());
-        }
-
-        None
-    }
 }
 
-impl Auth {
-    pub fn get_users() -> Vec<Auth> {
-        db::get_cnxn().get_users().unwrap()
-    }
-}
+// impl Auth {
+//     pub fn get_users() -> Vec<Auth> {
+//         db::get_cnxn().get_users().unwrap()
+//     }
+// }
