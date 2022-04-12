@@ -9,7 +9,7 @@ use loans::schema;
 use app::auth;
 
 struct App {
-  _users: HashMap<String, String>
+  users: HashMap<String, String>
 }
 
 fn test(db: bool) -> Vec<schema::Auth> {
@@ -41,14 +41,23 @@ impl App {
     }
 
     Self {
-      _users: users
+      users: users
     }
   }
 }
 
 #[tauri::command]
-fn validate_login(_app: tauri::State<App>, user: String, pwd: String) -> auth::AuthResult {
-  auth::validate_login(user, pwd)
+fn validate_login(app: tauri::State<App>, user: String, pwd: String) -> auth::AuthResult {
+  // auth::validate_login(user, pwd)
+
+  if app.users.contains_key(&user) {
+    return auth::AuthResult {
+      username: true,
+      password: app.users.get(&user) == Some(&pwd)
+    }
+  }
+
+  auth::AuthResult { username: false, password: false }
 }
 
 fn main() {
