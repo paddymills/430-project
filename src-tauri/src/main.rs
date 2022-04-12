@@ -18,15 +18,15 @@ fn test(db: bool) -> Vec<schema::Auth> {
     false => vec![
       schema::Auth {
         username: "admin".into(),
-        pwd_hash: "pwd123".into()
+        pwd_hash: auth::hash_pwd("pwd123".into())
       },
       schema::Auth {
         username: "cust1".into(),
-        pwd_hash: "passwrd".into()
+        pwd_hash: auth::hash_pwd("passwrd".into())
       },
       schema::Auth {
         username: "cust3".into(),
-        pwd_hash: "anotherstr".into()
+        pwd_hash: auth::hash_pwd("anotherstr".into())
       }
     ]
   }
@@ -49,11 +49,12 @@ impl App {
 #[tauri::command]
 fn validate_login(app: tauri::State<App>, user: String, pwd: String) -> auth::AuthResult {
   // auth::validate_login(user, pwd)
+  let pwd_hash = auth::hash_pwd(pwd);
 
   if app.users.contains_key(&user) {
     return auth::AuthResult {
       username: true,
-      password: app.users.get(&user) == Some(&pwd)
+      password: app.users.get(&user) == Some(&pwd_hash)
     }
   }
 
