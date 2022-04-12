@@ -6,40 +6,56 @@
 use std::collections::HashMap;
 
 use loans::schema;
+use app::auth;
 
 struct App {
-  users: HashMap<String, String>
+  _users: HashMap<String, String>
+}
+
+fn test(db: bool) -> Vec<schema::Auth> {
+  match db {
+    true => schema::Auth::get_users(),
+    false => vec![
+      schema::Auth {
+        username: "admin".into(),
+        pwd_hash: "pwd123".into()
+      },
+      schema::Auth {
+        username: "cust1".into(),
+        pwd_hash: "passwrd".into()
+      },
+      schema::Auth {
+        username: "cust3".into(),
+        pwd_hash: "anotherstr".into()
+      }
+    ]
+  }
 }
 
 impl App {
   fn new() -> Self {
     let mut users: HashMap<String, String> = HashMap::new();
-    for user in schema::Auth::get_users() {
+    // for user in schema::Auth::get_users() {
+    for user in test(false) {
       users.insert(user.username, user.pwd_hash);
     }
 
     Self {
-      users: users
+      _users: users
     }
   }
 }
 
 #[tauri::command]
-fn get_usernames(app: tauri::State<App>) -> Vec<String> {
-  app.users.keys().map(|x| x.clone()).collect()
-}
-
-#[tauri::command]
-fn validate_password(app: tauri::State<App>, user: String, pwd: String) -> bool {
-  app.users.get(&user).unwrap() == &pwd
+fn validate_login(_app: tauri::State<App>, user: String, pwd: String) -> auth::AuthResult {
+  auth::validate_login(user, pwd)
 }
 
 fn main() {
   tauri::Builder::default()
     .manage(App::new())
     .invoke_handler(tauri::generate_handler![
-      get_usernames,
-      validate_password
+      validate_login
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

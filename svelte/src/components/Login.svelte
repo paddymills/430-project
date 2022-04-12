@@ -1,36 +1,32 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { Button, Card, Input } from 'sveltestrap';
 
 	import { invoke } from '@tauri-apps/api/tauri';
 
 	let show_valid = false;
-	let users: [String] = invoke('getUsernames');
 
 	let username = {
 		value: "",
 		min_len: 4,
-		valid: false,
-		feedback: "Invalid username"
+		valid: true,
+		feedback: null
 	};
 	let password = {
 		value: "",
 		min_len: 4,
-		valid: false,
+		valid: true,
 		feedback: "Invalid password"
 	};
 
-	onMount(() => {
-		console.log(users);
-	});
-
-	function validateInput() {
-		username.valid = username.value.length >= username.min_len;
-		password.valid = password.value.length >= password.min_len;
-	}
-
-	function submit() {
+	async function submit() {
 		show_valid = true;
+
+		await invoke('validate_login', { username: username, password: password })
+			.then((result: { username: boolean, password: boolean }) => {
+				username.valid = result.username;
+				password.valid = result.password;
+			})
+			.catch((error) => console.log(error));
 	}
 </script>
 
@@ -39,7 +35,6 @@
 		id="username"
 		placeholder="username"
 		bind:value={username.value}
-		on:input={validateInput}
 		valid={show_valid && username.valid}
 		invalid={show_valid && !username.valid}
 		feedback={username.feedback}
@@ -49,7 +44,6 @@
 		type="password"
 		placeholder="password"
 		bind:value={password.value}
-		on:input={validateInput}
 		valid={show_valid && password.valid}
 		invalid={show_valid && !password.valid}
 		feedback={password.feedback}
