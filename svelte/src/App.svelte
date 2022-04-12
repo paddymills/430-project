@@ -14,11 +14,14 @@
 	function login(event) {
 		loggedIn = true;
 
-		username = event.detail;
+		// console.log(event);
+
+		username = event.detail.username;
+		isAdmin = event.detail.admin;
 	}
 
-	loggedIn = true;
-	username = "admin";
+	// loggedIn = true;
+	// username = "admin";
 </script>
 
 <main class="d-flex flex-column align-items-center p-5">
@@ -39,7 +42,7 @@
 		{#if isAdmin}
 			<AdminView />
 		{:else}
-			<CustomerView />
+			<CustomerView {username} />
 		{/if}
 	{/if}
 </main>

@@ -410,6 +410,7 @@ dependencies = [
  "libc",
  "num-integer",
  "num-traits",
+ "serde",
  "time 0.1.43",
  "winapi",
 ]
@@ -1618,6 +1619,7 @@ dependencies = [
  "r2d2-oracle",
  "requestty",
  "serde",
+ "sha2",
  "spinach",
  "tabled",
 ]

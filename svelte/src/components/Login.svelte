@@ -23,13 +23,22 @@
 		show_valid = true;
 
 		await invoke('validate_login', { user: username.value, pwd: password.value })
-			.then((result: { username: boolean, password: boolean }) => {
-				username.valid = result.username;
-				password.valid = result.password;
+			.then((result: {
+					username: boolean,
+					password: boolean
+					is_admin: boolean
+				}) => {
+					// console.log(result);
 
-				if (username.valid && password.valid) {
-					dispatch('loginSuccess', username.value);
-				}
+					username.valid = result.username;
+					password.valid = result.password;
+
+					if (username.valid && password.valid) {
+						dispatch('loginSuccess', {
+							username: username.value,
+							admin: result.is_admin
+						});
+					}
 			})
 			.catch((error) => console.log(error));
 	}

@@ -13,7 +13,7 @@ name = "loan-cli"
 path = "src/bin/cli.rs"
 
 [dependencies]
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 figment = { version = "0.10", features = ["toml", "env"] }
 lazy_static = "1.4"
 oracle = { version = "0.5", features = ["chrono"] }
@@ -21,5 +21,6 @@ r2d2 = "0.8"
 r2d2-oracle = "0.5"
 requestty = { version = "0.3.0", features = ["crossterm"] }
 serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.10.2"
 spinach = "2.1"
 tabled = "0.6.0"

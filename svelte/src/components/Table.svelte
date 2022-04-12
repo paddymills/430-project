@@ -1,18 +1,15 @@
 <script lang="ts">
     import { Table } from 'sveltestrap';
 
-	let data = [
-        [123, "Name1", "Open"],
-        [456, "Name2", "Closed"],
-    ]
+	export let data = []
 
 </script>
 
 <Table hover class="m-3">
     <thead>
         <th>#</th>
-        <th>Name</th>
-        <th>Value</th>
+        <th>Amount</th>
+        <th>Start Date</th>
     </thead>
     <tbody>
         {#each data as row}

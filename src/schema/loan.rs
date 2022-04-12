@@ -1,15 +1,20 @@
 
 use chrono::naive::NaiveDate;
 use oracle::{self, Row, RowValue};
+use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize, Serialize)]
 pub struct Loan {
     pub loan_id: u32,
     pub customer_id: u32,
     pub loan_amount: f32,
     pub interest_rate: f32,
     pub amount_paid: f32,
+
+    
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
+    
     pub number_of_payments: u32
 }
 

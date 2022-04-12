@@ -1,22 +1,26 @@
 
 use loans::{
     db,
-    schema::Customer
+    schema
 };
-use oracle::Error;
-use tabled::Table;
+use oracle::Result;
+// use tabled::Table;
 
-fn main() {
+fn main() -> Result<()> {
 
     let cnxn = db::get_cnxn();
 
-    let sql = "select * from customer";
-    match cnxn.query_as::<Customer>(sql, &[]) {
-        Ok(rows) => {
-            let r: Vec<Customer> = rows.filter_map(|c| c.ok()).collect();
-            println!("{:}", Table::new(r).to_string());
-        },
-        Err(Error::OciError(e)) => println!("OracleDB Error: {:?}", e.message()),
-        Err(e) => println!("OracleDB Error: {:?}", e)
+    let mut sql = cnxn.prepare("insert into auth (username, pwd_hash, customer_id) values (:1, :2, :3)", &[])?;
+
+    let users = [
+        ("admin", "pwd123", None),
+        ("cust1", "loans", Some(1)),
+        ("cust2", "mortgage", Some(4)),
+    ];
+
+    for x in &users {
+        sql.execute(&[&x.0, &schema::hash_pwd(x.1.into()), &x.2])?;
     }
+
+    cnxn.commit()
 }
