@@ -8,7 +8,7 @@
 
 </script>
 
-<Table hover>
+<Table hover class="m-3">
     <thead>
         <th>#</th>
         <th>Name</th>
