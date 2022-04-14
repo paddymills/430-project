@@ -9,6 +9,7 @@ drop sequence transaction_id_counter;
 drop table mortgage_loan;
 drop table auto_loan;
 drop table personal_loan;
+drop table auth;
 drop table transaction;
 drop table loan;
 drop table customer;
@@ -51,6 +52,17 @@ create table transaction (
     primary key (transaction_id),
     foreign key (customer_id) references customer,
     foreign key (loan_id) references loan
+);
+
+create table auth (
+    username varchar (255),
+    pwd_hash varchar (255),
+    is_admin char(1) default '0',
+
+    customer_id int,
+
+    primary key (username),
+    foreign key (customer_id) references customer
 );
 
 create table mortgage_loan (
