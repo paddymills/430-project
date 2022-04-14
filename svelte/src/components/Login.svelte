@@ -1,46 +1,49 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import { Button, Card, Input } from 'sveltestrap';
+	import { Button, Card, Input, Spinner } from 'sveltestrap';
 
 	import { invoke } from '@tauri-apps/api/tauri';
 
 	const dispatch = createEventDispatcher();
 	let show_valid = false;
+	let submitting = false;
 
 	let username = {
 		value: "",
 		min_len: 4,
-		valid: true
+		valid: false
 	};
 	let password = {
 		value: "",
 		min_len: 4,
-		valid: true
+		valid: false
 	};
 
 	async function submit() {
-		show_valid = true;
-
+		submitting = true;
+		
 		await invoke('validate_login', { user: username.value, pwd: password.value })
 			.then((result: {
-					username: boolean,
-					password: boolean
-					is_admin: boolean
-				}) => {
-					// console.log(result);
+				username: boolean,
+				password: boolean
+				is_admin: boolean
+			}) => {
+				// console.log(result);
+				show_valid = true;
 
-					username.valid = result.username;
-					password.valid = result.password;
+				username.valid = result.username;
+				password.valid = result.password;
 
-					if (username.valid && password.valid) {
-						dispatch('loginSuccess', {
-							username: username.value,
-							admin: result.is_admin
-						});
-					}
+				if (username.valid && password.valid) {
+					dispatch('loginSuccess', {
+						username: username.value,
+						admin: result.is_admin
+					});
+				}
 			})
-			.catch((error) => console.log(error));
+			.catch((error) => console.log(error))
+			.finally(() => submitting = false);
 	}
 </script>
 
@@ -63,9 +66,12 @@
 			invalid={show_valid && !password.valid}
 			feedback={password.valid ? null : "Invalid password"}
 		/>
-		<Button
-			color="primary"
-			on:click={submit}
-		>Log In</Button>
+		<Button color="primary" on:click={submit}>
+			{#if submitting }
+				<Spinner color="primary" />
+			{:else}
+				Log In
+			{/if}
+		</Button>
 	</Card>
 </div>
