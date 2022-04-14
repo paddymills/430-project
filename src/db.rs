@@ -10,7 +10,7 @@ lazy_static! {
 }
 
 pub fn create_conn_pool() -> Result<Pool<OracleConnectionManager>, Error> {
-    let cfg = config::db_cred();
+    let cfg = config::get_db_cred();
         let manager: OracleConnectionManager = OracleConnectionManager::new(
             &cfg.username,
             &cfg.password,
