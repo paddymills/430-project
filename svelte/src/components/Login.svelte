@@ -68,7 +68,7 @@
 		/>
 		<Button color="primary" on:click={submit}>
 			{#if submitting }
-				<Spinner color="primary" />
+				<Spinner color="light" size="sm" />
 			{:else}
 				Log In
 			{/if}
