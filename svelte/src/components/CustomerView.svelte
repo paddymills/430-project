@@ -7,24 +7,27 @@
 	
 	export let username;
 	let data = [
-        [123, "Name1", "Open"],
-        [456, "Name2", "Closed"],
+        { id: 123, amt: "$200.00", date: "2017-05-22" },
+        { id: 456, amt: "$100.00", date: "2020-12-01" },
     ]
 
 	onMount(load_loans);
 
 	async function load_loans() {
-		await invoke('get_customer_loans', { user: username })
+		await invoke('get_cust_loans', { user: username })
 			.then((result: [any]) => {
-				console.log(result);
+				// console.log(result);
 
-				data = result.map(x => [x.loan_id, x.loan_amount, x.start_date])	
+				data = result.map(x => {
+					x.editing = false;
+
+					return x;
+				});
+
+				console.log(data);
 			})
 			.catch((error) => console.log(error));
 	}
-
-	
-
 </script>
 
 <div transition:slide={{delay: 250, duration: 500}}>

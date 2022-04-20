@@ -20,15 +20,16 @@
 		isAdmin = event.detail.admin;
 	}
 
-	// loggedIn = true;
-	// username = "admin";
+	//testing
+	loggedIn = true;
+	username = "cust2";
 </script>
 
 <main class="d-flex flex-column align-items-center p-5">
 	{#if !loggedIn}
 		<LoginForm on:loginSuccess="{ login }" />
 	{:else}
-		<div class="w-100 p-3 border-bottom d-flex justify-content-between">
+		<div class="w-100 m-3 p-3 border-bottom d-flex justify-content-between">
 			<h4>{ isAdmin ? "Admin View" : "Customer View" }</h4>
 			<Dropdown>
 				<DropdownToggle caret outline color="primary" size="sm"><Icon name="person-circle" /></DropdownToggle>

@@ -20,6 +20,11 @@
 		valid: false
 	};
 
+	function handleKeyPress(event) {
+		if ( event.key == 'Enter' )
+			submit();
+	}
+
 	async function submit() {
 		submitting = true;
 		
@@ -53,6 +58,7 @@
 			id="username"
 			placeholder="username"
 			bind:value={username.value}
+			on:keypress={handleKeyPress}
 			valid={show_valid && username.valid}
 			invalid={show_valid && !username.valid}
 			feedback={username.valid ? null : "Invalid username"}
@@ -62,6 +68,7 @@
 			type="password"
 			placeholder="password"
 			bind:value={password.value}
+			on:keypress={handleKeyPress}
 			valid={show_valid && password.valid}
 			invalid={show_valid && !password.valid}
 			feedback={password.valid ? null : "Invalid password"}
