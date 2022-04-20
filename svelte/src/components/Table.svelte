@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Datatable, SearchInput, PaginationButtons, PaginationRowCount } from 'svelte-simple-datatables'
-    import { Toast, Button, Icon } from 'sveltestrap';
+    import { Button, Icon, Modal, ModalHeader, ModalBody, ModalFooter } from 'sveltestrap';
 
     const settings = {
         sortable: true,
@@ -13,21 +13,43 @@
         }
     }
 
-    async function deleteRow(id: Number) {
-        toastText = "delete row " + id;
-        isOpen = true;
-    }
-
     let rows;
 	export let data;
 
-    let isOpen = false;
-    let toastText = null;
+    let editId;
+    let editModalIsOpen = false;
+    let modalTitle = "Edit Row";
+    let modalText = "put form here";
+    const toggleModal = () => (editModalIsOpen = !editModalIsOpen);
+
+    function showModal(id: Number) {
+        editId = id;
+        modalText = "edit: " + id;
+        toggleModal();
+    }
+    async function deleteRow(id: Number) {
+        modalText = "delete: " + id;
+        toggleModal();
+    }
+    async function updateRow() {
+        modalText = "update: " + editId;
+    }
 
 </script>
 
 <section>
-    <Toast autohide body header="Message" {isOpen} on:close={() => (isOpen = false)}>{toastText}</Toast>
+    <Modal isOpen={editModalIsOpen} toggle={toggleModal}>
+        <ModalHeader>{ modalTitle }</ModalHeader>
+        <ModalBody>
+            { modalText }
+        </ModalBody>
+        <ModalFooter>
+            <Button color="primary" on:click={() => updateRow()}><Icon name="check-square" /> Submit</Button>
+            <Button color="secondary" on:click={toggleModal}><Icon name="x-square" /> Cancel</Button>
+            <!-- <Button color="primary" on:click={toggleModal}>Submit</Button>
+            <Button color="primary" on:click={toggleModal}>Cancel</Button> -->
+        </ModalFooter>
+    </Modal>
     <aside>
         {#if $rows}
             <SearchInput id={'loan-table'}/>
@@ -37,9 +59,9 @@
     <div>
         <Datatable {settings} {data} bind:dataRows={rows} id={'loan-table'}>
             <thead>
-                <th></th>   <!-- for icons -->
-                <th data-key="id">#</th>
-                <th data-key="amount">Loan Amount</th>
+                <th></th>
+                <th data-key="loan_id">#</th>
+                <th data-key="loan_amount">Loan Amount</th>
                 <th data-key="start_date">Start Date</th>
             </thead>
             <tbody>
@@ -47,13 +69,8 @@
                 {#each $rows as row}
                 <tr>
                     <td>
-                        {#if row.editing}
-                            <Button size="sm" color="success" on:click={() => deleteRow(row.loan_id)}><Icon name="check-square" /></Button>
-                            <Button size="sm" color="secondary" on:click={() => row.editing = false}><Icon name="x-square" /></Button>
-                        {:else}
-                            <Button size="sm" color="danger" on:click={() => deleteRow(row.loan_id)}><Icon name="trash" /></Button>
-                            <Button size="sm" color="primary" on:click={() => row.editing = true}><Icon name="pencil-square" /></Button>
-                        {/if}
+                        <Button size="sm" color="danger" on:click={() => deleteRow(row.loan_id)}><Icon name="trash" /></Button>
+                        <Button size="sm" color="primary" on:click={() => showModal(row.loan_id)}><Icon name="pencil-square" /></Button>
                     </td>
                     <td>{row.loan_id}</td>
                     <td>{row.loan_amount}</td>
