@@ -13,8 +13,8 @@
         }
     }
 
-    let rows;
 	export let data;
+    let rows;
 
     let editId;
     let editModalIsOpen = false;
@@ -46,8 +46,6 @@
         <ModalFooter>
             <Button color="primary" on:click={() => updateRow()}><Icon name="check-square" /> Submit</Button>
             <Button color="secondary" on:click={toggleModal}><Icon name="x-square" /> Cancel</Button>
-            <!-- <Button color="primary" on:click={toggleModal}>Submit</Button>
-            <Button color="primary" on:click={toggleModal}>Cancel</Button> -->
         </ModalFooter>
     </Modal>
     <aside>
@@ -62,7 +60,11 @@
                 <th></th>
                 <th data-key="loan_id">#</th>
                 <th data-key="loan_amount">Loan Amount</th>
-                <th data-key="start_date">Start Date</th>
+                <th data-key="interest_rate">Rate</th>
+                <th data-key="amount_paid">Paid</th>
+                <th data-key="number_of_payments">Payments</th>
+                <th data-key="start_date">Start</th>
+                <th data-key="end_date">End</th>
             </thead>
             <tbody>
             {#if rows}
@@ -72,9 +74,13 @@
                         <Button size="sm" color="danger" on:click={() => deleteRow(row.loan_id)}><Icon name="trash" /></Button>
                         <Button size="sm" color="primary" on:click={() => showModal(row.loan_id)}><Icon name="pencil-square" /></Button>
                     </td>
-                    <td>{row.loan_id}</td>
-                    <td>{row.loan_amount}</td>
-                    <td>{row.start_date}</td>
+                    <td>{ row.loan_id }</td>
+                    <td>{ row.loan_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) }</td>
+                    <td>{ row.interest_rate.toLocaleString('en-US', { style: 'percent', minimumFractionDigits: 2 }) }</td>
+                    <td>{ row.amount_paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) }</td>
+                    <td>{ row.number_of_payments }</td>
+                    <td>{ row.start_date }</td>
+                    <td>{ row.end_date }</td>
                 </tr>
                 {/each}
             {/if}

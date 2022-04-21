@@ -32,6 +32,20 @@
 				return error
 			});
 	}
+
+	async function load_loans() {
+		return await invoke('get_loans', {})
+			.then((result: [any]) => {
+				console.log(result);
+
+				return result;
+			})
+			.catch((error) => {
+				console.log(error);
+
+				return error
+			});
+	}
 </script>
 
 <div transition:slide={{delay: 250, duration: 500}} class="p-5">
@@ -52,7 +66,16 @@
 					</Alert>
 				{/await}
 			{:else if state === State.Loans}
-				<h1>Loans</h1>
+			{#await load_loans()}
+				<Spinner color="primary" />
+			{:then data}
+				<LoanTable {data} />
+			{:catch error}
+				<Alert color="danger">
+					<h1>Data failure</h1>
+					Failed to load customer data. { error }
+				</Alert>
+			{/await}
 			{/if}
 			<Button color="primary" on:click={showMenu}><Icon name="x" /> Close</Button>
 		{/if}

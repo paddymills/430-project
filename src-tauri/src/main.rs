@@ -3,7 +3,7 @@
   windows_subsystem = "windows"
 )]
 
-use app::{auth, admin, customer};
+use app::{auth, admin, customer, loan};
 
 fn main() {
     tauri::Builder::default()
@@ -11,7 +11,8 @@ fn main() {
             auth::validate_login,
             admin::get_all_loans,
             customer::get_cust_loans,
-            customer::get_customers
+            customer::get_customers,
+            loan::get_loans
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
