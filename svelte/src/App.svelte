@@ -5,7 +5,8 @@
 	import LoginForm from './components/Login.svelte';
 	import CustomerView from './components/CustomerView.svelte';
 	import AdminView from './components/AdminView.svelte';
-	// import Table from './components/Table.svelte';
+
+	let dev = false;
 
 	let loggedIn = false;
 	let isAdmin = false;
@@ -21,11 +22,12 @@
 	}
 
 	//testing
-	loggedIn = true;
 	const loadAdmin = () => { username = "admin"; isAdmin = true; };
 	const loadCust = () => { username = "cust2"; isAdmin = false; };
-
-	loadAdmin();
+	if (dev) {
+		loggedIn = true;
+		loadAdmin();
+	}
 
 </script>
 
@@ -40,8 +42,10 @@
 				<DropdownMenu end>
 					<DropdownItem header>{ username }</DropdownItem>
 					<DropdownItem on:click={ () => loggedIn = false }>Logout</DropdownItem>
-					<DropdownItem on:click={ loadAdmin}>Admin</DropdownItem>
-					<DropdownItem on:click={ loadCust }>Customer</DropdownItem>
+					{#if dev}
+						<DropdownItem on:click={ loadAdmin }>Admin</DropdownItem>
+						<DropdownItem on:click={ loadCust }>Customer</DropdownItem>
+					{/if}
 				</DropdownMenu>
 			</Dropdown>
 		</div>
