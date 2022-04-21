@@ -1,10 +1,11 @@
 
 use oracle::{self, Connection, Row, RowValue};
+use serde::{Deserialize, Serialize};
 use tabled::Tabled;
 
 use crate::schema::Loan;
 
-#[derive(Tabled)]
+#[derive(Tabled, Deserialize, Serialize)]
 pub struct Customer {
     pub customer_id: u32,
     pub first_name: String,

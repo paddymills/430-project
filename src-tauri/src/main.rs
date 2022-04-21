@@ -11,6 +11,7 @@ fn main() {
             auth::validate_login,
             admin::get_all_loans,
             customer::get_cust_loans,
+            customer::get_customers
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
