@@ -22,7 +22,11 @@
 
 	//testing
 	loggedIn = true;
-	username = "cust2";
+	const loadAdmin = () => { username = "admin"; isAdmin = true; };
+	const loadCust = () => { username = "cust2"; isAdmin = false; };
+
+	loadAdmin();
+
 </script>
 
 <main class="d-flex flex-column align-items-center p-5">
@@ -30,12 +34,14 @@
 		<LoginForm on:loginSuccess="{ login }" />
 	{:else}
 		<div class="w-100 m-3 p-3 border-bottom d-flex justify-content-between">
-			<h4>{ isAdmin ? "Admin View" : "Customer View" }</h4>
+			<h4>{ isAdmin ? "Admin View" : "Your Loans" }</h4>
 			<Dropdown>
-				<DropdownToggle caret outline color="primary" size="sm"><Icon name="person-circle" /></DropdownToggle>
+				<DropdownToggle caret outline color="primary" size="sm"><Icon name="person-circle" /> { username }</DropdownToggle>
 				<DropdownMenu end>
 					<DropdownItem header>{ username }</DropdownItem>
 					<DropdownItem on:click={ () => loggedIn = false }>Logout</DropdownItem>
+					<DropdownItem on:click={ loadAdmin}>Admin</DropdownItem>
+					<DropdownItem on:click={ loadCust }>Customer</DropdownItem>
 				</DropdownMenu>
 			</Dropdown>
 		</div>
