@@ -54,6 +54,7 @@
 
 <div transition:slide={{delay: 250, duration: 500}}>
 	<Card class="m-5 p-3 gap-3">
+		<h3>loan system</h3>
 		<Input
 			id="username"
 			placeholder="username"
