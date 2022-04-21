@@ -2,8 +2,9 @@
 use chrono::naive::NaiveDate;
 use oracle::{self, Connection, Row, RowValue};
 use serde::{Deserialize, Serialize};
+use tabled::Tabled;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Tabled, Deserialize, Serialize)]
 pub struct Loan {
     pub loan_id: u32,
     pub customer_id: u32,
@@ -35,10 +36,23 @@ impl RowValue for Loan {
 
 pub trait LoanOps {
     fn get_loans(self: &Self) -> Option<Vec<Loan>>;
+    fn list_loans(self: &Self) -> Option<Vec<Loan>> where Self: Sized;
 }
 
 impl LoanOps for Connection {
     fn get_loans(self: &Self) -> Option<Vec<Loan>> {
+        let res = self.query_as::<Loan>("select * from loan", &[]);
+
+        if let Ok(rows) = res {
+            return Some(rows.filter_map(|c| c.ok()).collect());
+        }
+
+        None
+    }
+
+    fn list_loans(self: &Self) -> Option<Vec<Loan>>
+        where Self: Sized
+    {
         let res = self.query_as::<Loan>("select * from loan", &[]);
 
         if let Ok(rows) = res {

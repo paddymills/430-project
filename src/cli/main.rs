@@ -4,7 +4,7 @@ use requestty::{
     Question, Answer
 };
 
-use crate::cli::{customer, transaction, MENU_SEP};
+use crate::cli::{customer, transaction, loan, MENU_SEP};
 
 pub fn menu() {
     loop {
@@ -13,6 +13,7 @@ pub fn menu() {
             .choices(vec![
                 "Customer Menu".into(),
                 "Transaction Menu".into(),
+                "Loan Menu".into(),
                 DefaultSeparator,
                 "Exit Loan System".into()
             ])
@@ -22,7 +23,8 @@ pub fn menu() {
             match result.index {
                 0 => customer::menu(),
                 1 => transaction::menu(),
-                3 => break,
+                2 => loan::menu(),
+                4 => break,
                 _ => unreachable!()
             }
         }

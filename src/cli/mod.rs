@@ -1,11 +1,13 @@
 
 mod answer;
 mod customer;
+mod loan;
 mod main;
 mod transaction;
 
 pub use answer::AnswerValue;
 pub use customer::*;
+pub use loan::*;
 pub use main::*;
 pub use transaction::*;
 
