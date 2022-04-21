@@ -42,6 +42,7 @@
     function showAddModal() {
         addMode = true;
         editrow = {
+            customer_id: null,
             loan_amount: null,
             interest_rate: null,
             amount_paid: null,
@@ -85,6 +86,10 @@
         <ModalHeader>{ addMode === true ? 'Add' : 'Edit' } Loan</ModalHeader>
         <ModalBody>
             <Form>
+                <FormGroup>
+                    <Label for="cid">Customer ID</Label>
+                    <Input id="cid" type="number" value={editrow.customer_id} />
+                </FormGroup>
                 <FormGroup>
                     <Label for="amount">Loan Amount</Label>
                     <Input id="amount" type="number" value={editrow.loan_amount} />
@@ -141,6 +146,7 @@
             <thead>
                 <th></th>
                 <th data-key="loan_id">#</th>
+                <th data-key="customer_id">Customer</th>
                 <th data-key="loan_amount">Loan Amount</th>
                 <th data-key="interest_rate">Rate</th>
                 <th data-key="amount_paid">Paid</th>
@@ -157,6 +163,7 @@
                         <Button size="sm" color="primary" on:click={() => showEditModal(row)}><Icon name="pencil-square" /></Button>
                     </td>
                     <td>{ row.loan_id }</td>
+                    <td>{ row.customer_id }</td>
                     <td>{ row.loan_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) }</td>
                     <td>{ row.interest_rate.toLocaleString('en-US', { style: 'percent', minimumFractionDigits: 2 }) }</td>
                     <td>{ row.amount_paid.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) }</td>
