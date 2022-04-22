@@ -1,7 +1,9 @@
 
 
 use oracle::{self, Row, RowValue};
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct PersonalLoan {
     pub loan_id: u32,
     pub purpose: String

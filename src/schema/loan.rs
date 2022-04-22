@@ -11,7 +11,6 @@ pub struct Loan {
     pub loan_amount: f32,
     pub interest_rate: f32,
     pub amount_paid: f32,
-
     
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,

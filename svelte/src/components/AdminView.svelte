@@ -20,7 +20,7 @@
 	const showCustomers = () => state = State.Customers;
 	const showLoans = () => state = State.Loans;
 
-	async function load_data() {
+	async function loadData() {
 		return await invoke(`get_${state}s`, {})
 			.then((result: [any]) => {
 				console.log(result);
@@ -46,13 +46,13 @@
 			<Button size="lg" color="primary" on:click={showCustomers}>Customers</Button>
 			<Button size="lg" color="primary" on:click={showLoans}>Loans</Button>
 		{:else}
-			{#await load_data()}
+			{#await loadData()}
 				<h4><Spinner color="primary" />Loading Loans</h4>
 			{:then data}
 				{#if state === State.Customers}
-					<CustomerTable {data} on:alert={handleAlert} />
+					<CustomerTable {data} on:alert={handleAlert} on:refresh(loadData) />
 				{:else if state === State.Loans}
-					<LoanTable {data} on:alert={handleAlert} />
+					<LoanTable {data} on:alert={handleAlert} on:refresh(loadData) />
 				{/if}
 			{:catch error}
 				<Alert color="danger">

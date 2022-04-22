@@ -12,7 +12,9 @@ fn main() {
             admin::get_all_loans,
             customer::get_cust_loans,
             customer::get_customers,
-            loan::get_loans
+            customer::get_customer,
+            loan::get_loans,
+            loan::get_loan
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
