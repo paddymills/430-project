@@ -27,9 +27,9 @@ impl RowValue for Customer {
 }
 
 pub trait CustomerOps {
-    fn add_customer(self: &Self, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
-    fn edit_customer(self: &Self, id: &u32, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<()> where Self: Sized;
-    fn remove_customer(self: &Self, id: &u32) -> oracle::Result<()> where Self: Sized;
+    fn add_customer(self: &Self, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<oracle::Statement> where Self: Sized;
+    fn edit_customer(self: &Self, id: &u32, fname: &String, lname: &String, email: &String, phone: &String) -> oracle::Result<oracle::Statement> where Self: Sized;
+    fn remove_customer(self: &Self, id: &u32) -> oracle::Result<oracle::Statement> where Self: Sized;
     fn find_customer(self: &Self, fname: &String, lname: &String) -> Option<Vec<Customer>> where Self: Sized;
     fn list_customers(self: &Self) -> Option<Vec<Customer>> where Self: Sized;
 
@@ -43,13 +43,17 @@ impl CustomerOps for Connection {
         lname: &String,
         email: &String,
         phone: &String
-    ) -> oracle::Result<()> {
-        let _ = self.execute(
+    ) -> oracle::Result<oracle::Statement> {
+        let result = self.execute(
             "call add_customer(:1, :2, :3, :4)",
             &[fname, lname, email, phone]
         );
         
-        self.commit()
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
     }
 
     fn edit_customer(
@@ -59,22 +63,30 @@ impl CustomerOps for Connection {
         lname: &String,
         email: &String,
         phone: &String
-    ) -> oracle::Result<()> {
-        let _ = self.execute(
+    ) -> oracle::Result<oracle::Statement> {
+        let result = self.execute(
             "call change_customer(:1, :2, :3, :4, :5)",
             &[id, fname, lname, email, phone]
         );
         
-        self.commit()
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
     }
 
-    fn remove_customer(self: &Self, id: &u32) -> oracle::Result<()> {
-        let _ = self.execute(
+    fn remove_customer(self: &Self, id: &u32) -> oracle::Result<oracle::Statement> {
+        let result = self.execute(
             "call remove_customer(:1)",
             &[id]
         );
-        
-        self.commit()
+
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
     }
     
     fn find_customer(self: &Self, fname: &String, lname: &String) -> Option<Vec<Customer>> {

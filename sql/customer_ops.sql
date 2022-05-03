@@ -47,7 +47,7 @@ declare
     cid_count int;
 begin
     select count(customer_id) into cid_count
-    from customer
+    from loan
     where customer_id = :orow.customer_id;
 
     if cid_count > 0 then

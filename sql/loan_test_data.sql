@@ -5,6 +5,7 @@ insert all
     into customer values (null, 'Alexander', 'Popov', 'ap123@armind.radio', '513-789-4562')
     into customer values (null, 'Ruben', 'de Ronde', 'rdr3@armind.radio', '717-333-4526')
     into customer values (null, 'Luke', 'Bond', 'bond@armind.radio', '717-458-2379')
+    into customer values (null, 'Deletable', 'Customer', 'not@important.com', '717-111-5555')
 select * from dual;
 commit;
 

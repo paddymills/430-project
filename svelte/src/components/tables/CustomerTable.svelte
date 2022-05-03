@@ -4,6 +4,7 @@
     import { Modal, ModalHeader, ModalBody, ModalFooter } from 'sveltestrap';
     import { Form, FormGroup, Input, Label } from 'sveltestrap';
     import { createEventDispatcher } from 'svelte';
+	import { invoke } from '@tauri-apps/api/tauri';
 
     const settings = {
         sortable: true,
@@ -52,28 +53,69 @@
         editrow = row;
         toggleEditModal();
     }
-    async function deleteRow(row: any) {
+    function showDeleteModal(row: any) {
+        editrow = row;
+        toggleDeleteModal();
+    }
+
+    async function deleteRow() {
         // call delete on backend
+        invoke('delete_customer', { id: editrow.customer_id })
+            .then((result: [any]) => {
+                alertMainPage("Customer Deleted.")
+                dispatch('refresh');
+			})
+			.catch((error) => {
+                console.log(error);
+                dispatch('alert', { message: error, isError: true });
+			});
+            
+        resetModals();
+    }
+    async function addRow() {
+        invoke('add_customer', {
+                fname: editrow.first_name,
+                lname: editrow.last_name,
+                email: editrow.email,
+                phone: editrow.phone
+            })
+            .then((result: [any]) => {
+                alertMainPage("Customer Added.")
+                dispatch('refresh');
+            })
+            .catch((error) => {
+                console.log(error);
+                dispatch('alert', { message: error, isError: true });
+            });
 
-        resetModals()
 
-        alertMainPage("Customer Deleted.")
+        resetModals();
+        dispatch('refresh');
     }
     async function updateRow() {
         // call update on backend
-        if (addMode) {
-            // add
-            alertMainPage("Customer Added.")
-        } else {
-            // update
-            alertMainPage("Customer Updated.")
-        }
+        invoke('edit_customer', {
+                id: editrow.customer_id,
+                fname: editrow.first_name,
+                lname: editrow.last_name,
+                email: editrow.email,
+                phone: editrow.phone
+            })
+            .then((result: [any]) => {
+                alertMainPage("Customer Updated.")
+                dispatch('refresh');
+            })
+            .catch((error) => {
+                console.log(error);
+                dispatch('alert', { message: error, isError: true });
+            });
 
         resetModals();
+        dispatch('refresh');
     }
 
     function alertMainPage(msg: string) {
-        dispatch('alert', { message: msg });
+        dispatch('alert', { message: msg, isError: false });
     }
 
     resetModals();
@@ -87,24 +129,24 @@
             <Form>
                 <FormGroup>
                     <Label for="firstName">First Name</Label>
-                    <Input id="firstName" value={editrow.first_name} />
+                    <Input id="firstName" bind:value={editrow.first_name} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="lastName">Last Name</Label>
-                    <Input id="lastName" value={editrow.last_name} />
+                    <Input id="lastName" bind:value={editrow.last_name} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="email">Email</Label>
-                    <Input id="email" value={editrow.email} />
+                    <Input id="email" bind:value={editrow.email} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="phone">Phone</Label>
-                    <Input id="phone" value={editrow.phone} />
+                    <Input id="phone" bind:value={editrow.phone} />
                 </FormGroup>
             </Form>
         </ModalBody>
         <ModalFooter>
-            <Button color="primary" on:click={toggleUpdateModal}>Submit</Button>
+            <Button color="primary" on:click={() => ( addMode ? addRow() : toggleUpdateModal)}>Submit</Button>
             <Button color="secondary" on:click={resetModals}>Cancel</Button>
         </ModalFooter>
     </Modal>
@@ -142,7 +184,7 @@
                 {#each $rows as row}
                 <tr>
                     <td>
-                        <Button size="sm" color="danger" on:click={toggleDeleteModal}><Icon name="trash" /></Button>
+                        <Button size="sm" color="danger" on:click={() => showDeleteModal(row)}><Icon name="trash" /></Button>
                         <Button size="sm" color="primary" on:click={() => showEditModal(row)}><Icon name="pencil-square" /></Button>
                     </td>
                     <td>{ row.customer_id }</td>

@@ -10,9 +10,14 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             auth::validate_login,
             admin::get_all_loans,
+
             customer::get_cust_loans,
             customer::get_customers,
             customer::get_customer,
+            customer::add_customer,
+            customer::edit_customer,
+            customer::delete_customer,
+
             loan::get_loans,
             loan::get_loan
         ])
