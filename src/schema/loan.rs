@@ -36,6 +36,18 @@ impl RowValue for Loan {
 pub trait LoanOps {
     fn get_loans(self: &Self) -> Option<Vec<Loan>>;
     fn list_loans(self: &Self) -> Option<Vec<Loan>> where Self: Sized;
+    fn add_loan(
+        self: &Self,
+        loan_id: u32,
+        customer_id: u32,
+        loan_amount: f32,
+        interest_rate: f32,
+        amount_paid: f32,
+        start_date: NaiveDate,
+        end_date: NaiveDate,
+        number_of_payments: u32,
+        purpose: String
+    ) -> oracle::Result<oracle::Statement> where Self: Sized;
 }
 
 impl LoanOps for Connection {

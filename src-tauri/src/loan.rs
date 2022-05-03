@@ -63,3 +63,22 @@ pub fn get_loan(id: u32) -> Option<LoanChild> {
 
     None
 }
+
+#[tauri::command]
+pub fn add_personal_loan(
+    loan_id: u32,
+    customer_id: u32,
+    loan_amount: f32,
+    interest_rate: f32,
+    amount_paid: f32,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+    number_of_payments: u32,
+    purpose: String
+) -> Result<(), String> {
+    match db::get_cnxn().add_personal_loan(&fname, &lname, &email, &phone) {
+        Ok(_) => Ok(()),
+        Err(oracle::Error::OciError(e)) => Err(get_oracle_error_text(e)),
+        Err(e) => Err(e.to_string())
+    }
+}
