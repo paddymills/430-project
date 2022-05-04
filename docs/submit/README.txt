@@ -16,3 +16,6 @@ There are 3 existing user accounts:
     Customer 2 (can only view their loans, customer_id: 4)
         username: cust2
         password: mortgage
+
+All the code is compiled on my github at https://github.com/paddymills/430-project
+There are aspects of the code that I'm not exactly happy with and would refactor, so consider yourself warned.
