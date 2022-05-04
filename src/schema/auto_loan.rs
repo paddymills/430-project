@@ -1,5 +1,5 @@
 
-use oracle::{self, Row, RowValue};
+use oracle::{self, Connection, Row, RowValue};
 use serde::{Serialize, Deserialize};
 
 #[derive(Default, Serialize, Deserialize)]
@@ -20,5 +20,49 @@ impl RowValue for AutoLoan {
             year: row.get("year")?,
             vin: row.get("vin")?,
         })
+    }
+}
+
+pub trait AutoLoanOps {
+    fn add_auto_loan(
+        self: &Self,
+        loan_data: &AutoLoan
+    ) -> oracle::Result<oracle::Statement> where Self: Sized;
+    fn edit_auto_loan(
+        self: &Self,
+        loan_data: &AutoLoan
+    ) -> oracle::Result<oracle::Statement> where Self: Sized;
+}
+
+impl AutoLoanOps for Connection {
+    fn add_auto_loan(
+        self: &Self,
+        loan_data: &AutoLoan
+    ) -> oracle::Result<oracle::Statement> where Self: Sized {
+        let result = self.execute(
+            "call add_auto_loan(:1, :2, :3, :4, :5)",
+            &[&loan_data.loan_id, &loan_data.make, &loan_data.model, &loan_data.year, &loan_data.vin]
+        );
+        
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
+    }
+    fn edit_auto_loan(
+        self: &Self,
+        loan_data: &AutoLoan
+    ) -> oracle::Result<oracle::Statement> where Self: Sized {
+        let result = self.execute(
+            "call change_auto_loan(:1, :2, :3, :4, :5)",
+            &[&loan_data.loan_id, &loan_data.make, &loan_data.model, &loan_data.year, &loan_data.vin]
+        );
+        
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
     }
 }

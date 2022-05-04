@@ -285,6 +285,199 @@ begin
     where transaction_id = tid;
 end;
 
+-- ----------------------------------------------------------------
+-- loan ops
+-- ----------------------------------------------------------------
+create or replace procedure add_loan(
+    cid loan.customer_id%type,
+    amt loan.loan_amount%type,
+    rate loan.interest_rate%type,
+    paid loan.amount_paid%type,
+    sdate loan.start_date%type,
+    edate loan.end_date%type,
+    payments loan.number_of_payments%type
+) as
+begin
+    insert into loan (customer_id, loan_amount, interest_rate, amount_paid, start_date, end_date, number_of_payments)
+    values (cid, amt, rate, paid, sdate, edate, payments);
+end;
+
+create or replace procedure change_loan(
+    lid loan.loan_id%type,
+    cid loan.customer_id%type,
+    amt loan.loan_amount%type,
+    rate loan.interest_rate%type,
+    paid loan.amount_paid%type,
+    sdate loan.start_date%type,
+    edate loan.end_date%type,
+    payments loan.number_of_payments%type
+) as
+begin
+    declare
+        lid_count int;
+    begin
+        select count(loan_id) into lid_count
+        from loan
+        where loan_id = lid;
+
+        if lid_count = 0 then
+            raise_application_error(-20401, 'No loan exists with specified ID');
+        end if;
+
+        update loan
+        set
+            customer_id = cid,
+            loan_amount = amt,
+            interest_rate = rate,
+            amount_paid = paid,
+            start_date = sdate,
+            end_date = edate,
+            number_of_payments = payments
+        where
+            loan_id = lid;
+    end;
+end;
+
+create or replace procedure remove_loan(
+    lid loan.loan_id%type
+) as
+begin
+    delete from auto_loan where loan_id = lid;
+    delete from mortgage_loan where loan_id = lid;
+    delete from personal_loan where loan_id = lid;
+    delete from loan where loan_id = lid;
+end;
+
+-- ----------------------------------------------------------------
+-- auto loan ops
+-- ----------------------------------------------------------------
+create or replace procedure add_auto_loan(
+    lid auto_loan.loan_id%type,
+    mk auto_loan.make%type,
+    mdl auto_loan.model%type,
+    yr auto_loan.year%type,
+    vn auto_loan.vin%type
+) as
+begin
+    insert into auto_loan (loan_id, make, model, year, vin)
+    values (lid, mk, mdl, yr, vn);
+end;
+
+create or replace procedure change_auto_loan(
+    lid auto_loan.loan_id%type,
+    mk auto_loan.make%type,
+    mdl auto_loan.model%type,
+    yr auto_loan.year%type,
+    vn auto_loan.vin%type
+) as
+begin
+    declare
+        lid_count int;
+    begin
+        select count(loan_id) into lid_count
+        from auto_loan
+        where loan_id = lid;
+
+        if lid_count = 0 then
+            raise_application_error(-20401, 'No auto loan exists with specified ID');
+        end if;
+
+        update auto_loan
+        set
+            make = mk,
+            model = mdl,
+            year = yr,
+            vin = vn
+        where
+            loan_id = lid;
+    end;
+end;
+
+-- ----------------------------------------------------------------
+-- mortgage loan ops
+-- ----------------------------------------------------------------
+create or replace procedure add_mortgage_loan(
+    lid auto_loan.loan_id%type,
+    addr mortgage_loan.address%type,
+    ar mortgage_loan.area%type,
+    nbed mortgage_loan.num_bedrooms%type,
+    nbath mortgage_loan.num_bathrooms%type,
+    pr mortgage_loan.price%type
+) as
+begin
+    insert into mortgage_loan (loan_id, address, area, num_bedrooms, num_bathrooms, price)
+    values (lid, addr, ar, nbed, nbath, pr);
+end;
+
+create or replace procedure change_mortgage_loan(
+    lid auto_loan.loan_id%type,
+    addr mortgage_loan.address%type,
+    ar mortgage_loan.area%type,
+    nbed mortgage_loan.num_bedrooms%type,
+    nbath mortgage_loan.num_bathrooms%type,
+    pr mortgage_loan.price%type
+) as
+begin
+    declare
+        lid_count int;
+    begin
+        select count(loan_id) into lid_count
+        from mortgage_loan
+        where loan_id = lid;
+
+        if lid_count = 0 then
+            raise_application_error(-20401, 'No mortgage loan exists with specified ID');
+        end if;
+
+        update mortgage_loan
+        set
+            address = addr,
+            area = ar,
+            num_bedrooms = nbed,
+            num_bathrooms = nbath,
+            price = pr
+        where
+            loan_id = lid;
+    end;
+end;
+
+-- ----------------------------------------------------------------
+-- personal loan ops
+-- ----------------------------------------------------------------
+create or replace procedure add_personal_loan(
+    lid personal_loan.loan_id%type,
+    purp personal_loan.purpose%type
+) as
+begin
+    insert into personal_loan (loan_id, purpose)
+    values (lid, purp);
+end;
+
+create or replace procedure change_personal_loan(
+    lid personal_loan.loan_id%type,
+    purp personal_loan.purpose%type
+) as
+begin
+    declare
+        lid_count int;
+    begin
+        select count(loan_id) into lid_count
+        from personal_loan
+        where loan_id = lid;
+
+        if lid_count = 0 then
+            raise_application_error(-20401, 'No personal loan exists with specified ID');
+        end if;
+
+        update personal_loan
+        set
+            purpose = purp
+        where
+            loan_id = lid;
+    end;
+end;
+
+-- ------------------------------------------------------------------------------------------------
 
 -- ----------------------------------------------------------------
 -- test data

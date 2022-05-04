@@ -146,7 +146,7 @@
             </Form>
         </ModalBody>
         <ModalFooter>
-            <Button color="primary" on:click={() => ( addMode ? addRow() : toggleUpdateModal)}>Submit</Button>
+            <Button color="primary" on:click={() => ( addMode ? addRow() : toggleUpdateModal())}>Submit</Button>
             <Button color="secondary" on:click={resetModals}>Cancel</Button>
         </ModalFooter>
     </Modal>

@@ -25,7 +25,7 @@
 	async function loadData() {
 		return await invoke(`get_${state}s`, {})
 			.then((result: [any]) => {
-				console.log(result);
+				// console.log(result);
 
 				return result;
 			})

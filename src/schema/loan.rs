@@ -36,18 +36,9 @@ impl RowValue for Loan {
 pub trait LoanOps {
     fn get_loans(self: &Self) -> Option<Vec<Loan>>;
     fn list_loans(self: &Self) -> Option<Vec<Loan>> where Self: Sized;
-    fn add_loan(
-        self: &Self,
-        loan_id: u32,
-        customer_id: u32,
-        loan_amount: f32,
-        interest_rate: f32,
-        amount_paid: f32,
-        start_date: NaiveDate,
-        end_date: NaiveDate,
-        number_of_payments: u32,
-        purpose: String
-    ) -> oracle::Result<oracle::Statement> where Self: Sized;
+    fn add_loan(self: &Self, loan_data: &Loan) -> oracle::Result<oracle::Statement> where Self: Sized;
+    fn edit_loan(self: &Self, loan_data: &Loan) -> oracle::Result<oracle::Statement> where Self: Sized;
+    fn remove_loan(self: &Self, id: &u32) -> oracle::Result<oracle::Statement> where Self: Sized;
 }
 
 impl LoanOps for Connection {
@@ -71,5 +62,60 @@ impl LoanOps for Connection {
         }
 
         None
+    }
+    fn add_loan(self: &Self, loan_data: &Loan) -> oracle::Result<oracle::Statement> {
+        let result = self.execute(
+            "call add_loan(:1, :2, :3, :4, :5, :6, :7)",
+            &[
+                &loan_data.customer_id,
+                &loan_data.loan_amount,
+                &loan_data.interest_rate,
+                &loan_data.amount_paid,
+                &loan_data.start_date,
+                &loan_data.end_date,
+                &loan_data.number_of_payments
+            ]
+        );
+        
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
+    }
+
+    fn edit_loan(self: &Self, loan_data: &Loan) -> oracle::Result<oracle::Statement> {
+        let result = self.execute(
+            "call change_loan(:1, :2, :3, :4, :5, :6, :7, :8)",
+            &[
+                &loan_data.loan_id,
+                &loan_data.customer_id,
+                &loan_data.loan_amount,
+                &loan_data.interest_rate,
+                &loan_data.amount_paid,
+                &loan_data.start_date,
+                &loan_data.end_date,
+                &loan_data.number_of_payments
+            ]
+        );
+        
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
+    }
+
+    fn remove_loan(self: &Self, id: &u32) -> oracle::Result<oracle::Statement> {
+        let result = self.execute(
+            "call remove_loan(:1)",
+            &[id]
+        );
+
+        if let Ok(_) = result {
+            let _ = self.commit();
+        }
+
+        result
     }
 }

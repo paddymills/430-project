@@ -19,7 +19,10 @@ fn main() {
             customer::delete_customer,
 
             loan::get_loans,
-            loan::get_loan
+            loan::get_loan,
+            loan::add_loan,
+            loan::update_loan,
+            loan::delete_loan
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

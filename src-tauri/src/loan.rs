@@ -1,15 +1,31 @@
 
 use serde::{Serialize, Deserialize};
 
+use crate::return_oracle_text;
 use loans::{
     db,
-    schema::{LoanOps, Loan, AutoLoan, MortgageLoan, PersonalLoan}
+    schema::{
+        Loan, LoanOps,
+        AutoLoan, AutoLoanOps,
+        MortgageLoan, MortgageLoanOps,
+        PersonalLoan, PersonalLoanOps
+    }
 };
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct LoanChild {
     pub child: String,
 
+    pub auto: Option<AutoLoan>,
+    pub mortgage: Option<MortgageLoan>,
+    pub personal: Option<PersonalLoan>
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ExtLoanChild {
+    pub loan: Loan,
+
+    pub child: String,
     pub auto: Option<AutoLoan>,
     pub mortgage: Option<MortgageLoan>,
     pub personal: Option<PersonalLoan>
@@ -65,20 +81,50 @@ pub fn get_loan(id: u32) -> Option<LoanChild> {
 }
 
 #[tauri::command]
-pub fn add_personal_loan(
-    loan_id: u32,
-    customer_id: u32,
-    loan_amount: f32,
-    interest_rate: f32,
-    amount_paid: f32,
-    start_date: NaiveDate,
-    end_date: NaiveDate,
-    number_of_payments: u32,
-    purpose: String
-) -> Result<(), String> {
-    match db::get_cnxn().add_personal_loan(&fname, &lname, &email, &phone) {
-        Ok(_) => Ok(()),
-        Err(oracle::Error::OciError(e)) => Err(get_oracle_error_text(e)),
-        Err(e) => Err(e.to_string())
+pub fn add_loan(data: ExtLoanChild) -> Result<(), String> {
+    let conn = db::get_cnxn();
+
+    let add_loan_res = conn.add_loan(&data.loan);
+    if let Err(_) = add_loan_res {
+        return return_oracle_text(add_loan_res);
     }
+
+    let add_child_loan_res = match data.child.as_str() {
+        "auto"     => conn.add_auto_loan(&data.auto.unwrap()),
+        "mortgage" => conn.add_mortgage_loan(&data.mortgage.unwrap()),
+        "personal" => conn.add_personal_loan(&data.personal.unwrap()),
+        _ => unreachable!()
+    };
+
+    return_oracle_text(add_child_loan_res)
+}
+
+#[tauri::command]
+pub fn update_loan(data: ExtLoanChild) -> Result<(), String> {
+    let conn = db::get_cnxn();
+
+    // remove child loan type
+    let _ = conn.execute("delete from auto_loan where loan_id = :1" ,&[&data.loan.loan_id]);
+    let _ = conn.execute("delete from mortgage_loan where loan_id = :1" ,&[&data.loan.loan_id]);
+    let _ = conn.execute("delete from personal_loan where loan_id = :1" ,&[&data.loan.loan_id]);
+    let _ = conn.commit();
+
+    let update_loan_res = conn.edit_loan(&data.loan);
+    if let Err(_) = update_loan_res {
+        return return_oracle_text(update_loan_res);
+    }
+
+    let update_child_loan_res = match data.child.as_str() {
+        "auto"     => conn.add_auto_loan(&data.auto.unwrap()),
+        "mortgage" => conn.add_mortgage_loan(&data.mortgage.unwrap()),
+        "personal" => conn.add_personal_loan(&data.personal.unwrap()),
+        _ => unreachable!()
+    };
+
+    return_oracle_text(update_child_loan_res)
+}
+
+#[tauri::command]
+pub fn delete_loan(id: u32) -> Result<(), String> {
+    return_oracle_text( db::get_cnxn().remove_loan(&id) )
 }

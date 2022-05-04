@@ -20,10 +20,10 @@
 
     const dispatch = createEventDispatcher();
     const alertMainPage = msg => dispatch('alert', { message: msg });
-    const reloadData = () => dispatch('refresh', {});
 
 	export let data;
     let rows;
+    let customers;
     let editrow;
     let addMode = false;
 
@@ -45,14 +45,16 @@
 
     function initEditRow() {
         editrow = {
-            loan_id: null,
-            customer_id: null,
-            loan_amount: null,
-            interest_rate: null,
-            amount_paid: null,
-            number_of_payments: null,
-            start_date: null,
-            end_date: null,
+            loan: {
+                loan_id: 999,
+                customer_id: null,
+                loan_amount: null,
+                interest_rate: null,
+                amount_paid: null,
+                number_of_payments: null,
+                start_date: null,
+                end_date: null,
+            },
 
             child: 'auto',
             auto: {
@@ -73,6 +75,33 @@
             }
         };
     }
+
+    function prepareEditRowExport() {
+        // console.log(editrow);
+
+        switch (editrow.child) {
+            case 'auto':
+                editrow.auto.loan_id = editrow.loan.loan_id;
+                editrow.mortgage = null;
+                editrow.personal = null;
+                
+                break;
+            case 'mortgage':
+                editrow.mortgage.loan_id = editrow.loan.loan_id;
+                editrow.auto = null;
+                editrow.personal = null;
+
+                break;
+            case 'personal':
+                editrow.personal.loan_id = editrow.loan.loan_id;
+                editrow.auto = null;
+                editrow.mortgage = null;
+                break;
+        
+            default:
+                break;
+        }
+    }
     
     function showAddModal() {
         addMode = true;
@@ -81,38 +110,76 @@
     }
     
     async function showEditModal(row: any) {
-        initEditRow();
-        editrow = row;
-        await getLoanData(editrow.loan_id)
+        // initEditRow();
+        editrow.loan = row;
+        await getLoanData(editrow.loan.loan_id)
             .then((result: any) => {
                 editrow.child = result.child;
-                if (editrow.auto) { editrow.auto = result.auto; }
-                if (editrow.mortgage) { editrow.mortgage = result.mortgage; }
-                if (editrow.personal) { editrow.personal = result.personal; }
+                switch (editrow.child) {
+                    case 'auto':
+                        editrow.auto = result.auto;
+                        break;
+                    case 'mortgage':
+                        editrow.mortgage = result.mortgage;
+                        break;
+                    case 'personal':
+                        editrow.personal = result.personal;
+                        break;
+                
+                    default:
+                        break;
+                }
             });
 
         toggleEditModal();
     }
-    async function deleteRow(row: any) {
-        // call delete on backend
+    function showDeleteModal(row: any) {
+        editrow.loan = row;
+        toggleDeleteModal();
+    }
+    async function deleteRow() {
+        invoke('delete_loan', { id: editrow.loan.loan_id })
+            .then((result: [any]) => {
+                alertMainPage("Loan deleted.")
+                dispatch('refresh');
+            })
+            .catch((error) => {
+                console.log(error);
+                dispatch('alert', { message: error, isError: true });
+            });
 
         resetModals();
+    }
+    async function addRow() {
+        prepareEditRowExport();
 
-        alertMainPage("Loan Deleted.");
-        reloadData();
+        invoke('add_loan', { data: editrow })
+            .then((result: [any]) => {
+                alertMainPage("Loan Added.")
+                dispatch('refresh');
+            })
+            .catch((error) => {
+                console.log(error);
+                dispatch('alert', { message: error, isError: true });
+            });
+
+        resetModals();
     }
     async function updateRow() {
-        // call update on backend
-        if (addMode) {
-            // add
-            alertMainPage("Loan Added.");
-        } else {
-            // update
-            alertMainPage("Loan Updated.");
-        }
+        prepareEditRowExport();
+        // console.log(editrow);
+
+        invoke('update_loan', { data: editrow })
+            .then((result: [any]) => {
+                alertMainPage("Loan Updated.");
+                dispatch('refresh');
+            })
+            .catch((error) => {
+                console.log(error);
+                dispatch('alert', { message: error, isError: true });
+            });
 
         resetModals();
-        reloadData();
     }
 
     async function getLoanData(loan_id: number) {
@@ -120,8 +187,8 @@
 
         return await invoke('get_loan', { id: loan_id })
             .then((result: any) => {
-                console.log(result);
-                popoverTitle = result.child.charAt(0).toUpperCase() + result.child.slice(1) + ' Loan';
+                // console.log(result);
+                popoverTitle = result.child + ' Loan';
 
                 return result;
             })
@@ -132,12 +199,19 @@
             });
     }
 
+    async function loadCustomers() {
+		return await invoke('get_customers', {})
+			.then((result: [any]) => {
+                customers = result;
+			});
+	}
+
     async function getCustomerData(customer_id: number) {
         popoverTitle = "Customer Data";
 
         return await invoke('get_customer', { id: customer_id })
 			.then((result: any) => {
-				console.log(result);
+				// console.log(result);
                 popoverTitle = result.first_name + ' ' + result.last_name;
 
 				return result;
@@ -150,43 +224,51 @@
     }
 
     resetModals();
+    initEditRow();
+    loadCustomers();
 
 </script>
 
 <section>
     <Modal isOpen={modals.edit} toggle={toggleEditModal}>
         <ModalHeader>{ addMode === true ? 'Add' : 'Edit' } Loan</ModalHeader>
-        <ModalBody>
+        <ModalBody class="d-flex flex-row">
             {#key editrow.child}
-            <Form>
+            <Form class="m-3">
                 <FormGroup>
                     <Label for="cid">Customer ID</Label>
-                    <Input id="cid" type="number" value={editrow.customer_id} />
+                    <Input id="cid" type="select" bind:value={ editrow.loan.customer_id }>
+                        {#each customers as cust}
+                            <option value={cust.customer_id}>{ cust.customer_id }: { cust.first_name } { cust.last_name }</option>
+                        {/each}
+                    </Input>
                 </FormGroup>
                 <FormGroup>
                     <Label for="amount">Loan Amount</Label>
-                    <Input id="amount" type="number" value={editrow.loan_amount} />
+                    <Input id="amount" type="number" bind:value={editrow.loan.loan_amount} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="rate">Interest Rate</Label>
-                    <Input id="rate" type="number" value={editrow.interest_rate} />
+                    <Input id="rate" type="number" bind:value={editrow.loan.interest_rate} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="paid">Amount Paid</Label>
-                    <Input id="paid" type="number" value={editrow.amount_paid} />
+                    <Input id="paid" type="number" bind:value={editrow.loan.amount_paid} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="payments">Number of Payments</Label>
-                    <Input id="payments" type="number" value={editrow.number_of_payments} />
+                    <Input id="payments" type="number" bind:value={editrow.loan.number_of_payments} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="start">Start Date</Label>
-                    <Input id="start" type="date" value={editrow.start_date} />
+                    <Input id="start" type="date" bind:value={editrow.loan.start_date} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="end">End Date</Label>
-                    <Input id="end" type="date" value={editrow.end_date} />
+                    <Input id="end" type="date" bind:value={editrow.loan.end_date} />
                 </FormGroup>
+            </Form>
+            <Form class="m-3">
                 <FormGroup>
                     <Label for="type">Loan Type</Label>
                     <Input id="type" type="select" bind:value={ editrow.child }>
@@ -196,24 +278,24 @@
                     </Input>
                 </FormGroup>
                 {#if editrow.child == 'auto'}
-                    <FormGroup><Label for="make">Make</Label><Input id="make" value={ editrow.auto.make } /></FormGroup>
-                    <FormGroup><Label for="model">Model</Label><Input id="model" value={ editrow.auto.model } /></FormGroup>
-                    <FormGroup><Label for="year">Year</Label><Input id="year" value={ editrow.auto.year } /></FormGroup>
-                    <FormGroup><Label for="vin">VIN</Label><Input id="vin" value={ editrow.auto.vin } /></FormGroup>
+                    <FormGroup><Label for="make">Make</Label><Input id="make" bind:value={ editrow.auto.make } /></FormGroup>
+                    <FormGroup><Label for="model">Model</Label><Input id="model" bind:value={ editrow.auto.model } /></FormGroup>
+                    <FormGroup><Label for="year">Year</Label><Input id="year" bind:value={ editrow.auto.year } /></FormGroup>
+                    <FormGroup><Label for="vin">VIN</Label><Input id="vin" bind:value={ editrow.auto.vin } /></FormGroup>
                 {:else if editrow.child == 'mortgage'}
-                    <FormGroup><Label for="addr">Address</Label><Input id="addr" value={ editrow.mortgage.address } /></FormGroup>
-                    <FormGroup><Label for="area">Area</Label><Input id="area" value={ editrow.mortgage.area } /></FormGroup>
-                    <FormGroup><Label for="bedrooms">Bedrooms</Label><Input id="bedrooms" type="number" value={ editrow.mortgage.num_bedrooms } /></FormGroup>
-                    <FormGroup><Label for="bathrooms">Bathrooms</Label><Input id="bathrooms" type="number" value={ editrow.mortgage.num_bathrooms } /></FormGroup>
-                    <FormGroup><Label for="price">Price</Label><Input id="price" type="number" value={ editrow.mortgage.price } /></FormGroup>
+                    <FormGroup><Label for="addr">Address</Label><Input id="addr" bind:value={ editrow.mortgage.address } /></FormGroup>
+                    <FormGroup><Label for="area">Area</Label><Input id="area" bind:value={ editrow.mortgage.area } /></FormGroup>
+                    <FormGroup><Label for="bedrooms">Bedrooms</Label><Input id="bedrooms" type="number" bind:value={ editrow.mortgage.num_bedrooms } /></FormGroup>
+                    <FormGroup><Label for="bathrooms">Bathrooms</Label><Input id="bathrooms" type="number" bind:value={ editrow.mortgage.num_bathrooms } /></FormGroup>
+                    <FormGroup><Label for="price">Price</Label><Input id="price" type="number" bind:value={ editrow.mortgage.price } /></FormGroup>
                 {:else if editrow.child == 'personal'}
-                    <FormGroup><Label for="purpose">Purpose</Label><Input id="purpose" type="textarea" value={ editrow.personal.purpose } /></FormGroup>
+                    <FormGroup><Label for="purpose">Purpose</Label><Input id="purpose" type="textarea" bind:value={ editrow.personal.purpose } /></FormGroup>
                 {/if}
             </Form>
             {/key}
         </ModalBody>
         <ModalFooter>
-            <Button color="primary" on:click={toggleUpdateModal}>Submit</Button>
+            <Button color="primary" on:click={() => ( addMode ? addRow() : toggleUpdateModal())}>Submit</Button>
             <Button color="secondary" on:click={resetModals}>Cancel</Button>
         </ModalFooter>
     </Modal>
@@ -256,7 +338,7 @@
                 {@const rowId = Math.random().toString(36).slice(-6)}
                 <tr>
                     <td>
-                        <Button size="sm" color="danger" on:click={toggleDeleteModal}><Icon name="trash" /></Button>
+                        <Button size="sm" color="danger" on:click={() => showDeleteModal(row)}><Icon name="trash" /></Button>
                         <Button size="sm" color="primary" on:click={() => showEditModal(row)}><Icon name="pencil-square" /></Button>
                     </td>
                     <td id={ `loan-${rowId}` }>{ row.loan_id }</td>
@@ -268,7 +350,7 @@
                     <td>{ row.start_date }</td>
                     <td>{ row.end_date }</td>
                 </tr>
-                <Popover trigger="hover" target={ `loan-${rowId}` } title={ popoverTitle }>
+                <Popover class="text-capitalize" trigger="hover" target={ `loan-${rowId}` } title={ popoverTitle }>
                     {#await getLoanData(row.loan_id)}
                         <Spinner color="primary" />
                     {:then loan}

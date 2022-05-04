@@ -6,7 +6,7 @@
 	import CustomerView from './components/CustomerView.svelte';
 	import AdminView from './components/AdminView.svelte';
 
-	let dev = true;
+	let dev = false;
 
 	let loggedIn = false;
 	let isAdmin = false;
